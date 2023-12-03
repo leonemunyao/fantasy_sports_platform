@@ -1,0 +1,4 @@
+[workspace]
+members = [
+    "src/fantasy_sports_platform_backend",
+]

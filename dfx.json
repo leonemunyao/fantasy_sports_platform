@@ -1,0 +1,30 @@
+{
+  "canisters": {
+    "fantasy_sports_platform_backend": {
+      "candid": "src/fantasy_sports_platform_backend/fantasy_sports_platform_backend.did",
+      "package": "fantasy_sports_platform_backend",
+      "type": "rust"
+    },
+    "fantasy_sports_platform_frontend": {
+      "dependencies": [
+        "fantasy_sports_platform_backend"
+      ],
+      "frontend": {
+        "entrypoint": "src/fantasy_sports_platform_frontend/src/index.html"
+      },
+      "source": [
+        "src/fantasy_sports_platform_frontend/assets",
+        "dist/fantasy_sports_platform_frontend/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

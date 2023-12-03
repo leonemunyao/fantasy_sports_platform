@@ -1,0 +1,76 @@
+type Error = variant { NotFound : record { msg : text } };
+type League = record { id : nat64; teams : vec TeamLineup; name : text };
+type LeaguePayload = record { name : text };
+type Player = record {
+  id : nat64;
+  age : nat32;
+  name : text;
+  team : text;
+  is_playing : bool;
+  is_captain : bool;
+  price : nat32;
+  position : text;
+  points : nat32;
+};
+type PlayerPayload = record {
+  age : nat32;
+  name : text;
+  team : text;
+  is_playing : bool;
+  is_captain : bool;
+  price : nat32;
+  position : text;
+  points : nat32;
+};
+type Result = variant { Ok; Err : text };
+type Result_1 = variant { Ok : League; Err : Error };
+type Result_2 = variant { Ok : Player; Err : Error };
+type Result_3 = variant { Ok : TeamLineup; Err : Error };
+type Result_4 = variant { Ok : vec League; Err : Error };
+type Result_5 = variant { Ok : vec Player; Err : Error };
+type Result_6 = variant { Ok : vec TeamLineup; Err : Error };
+type Result_7 = variant { Ok : League; Err : text };
+type Result_8 = variant { Ok : Player; Err : text };
+type Result_9 = variant { Ok : TeamLineup; Err : text };
+type TeamLineup = record {
+  id : nat64;
+  name : text;
+  is_playing : bool;
+  players : vec Player;
+  budget : nat32;
+  points : nat32;
+};
+type TeamPayload = record {
+  name : text;
+  is_playing : bool;
+  budget : nat32;
+  points : nat32;
+};
+service : {
+  add_player_to_team : (nat64, nat64) -> (Result);
+  add_team_to_league : (nat64, nat64) -> (Result);
+  delete_league : (nat64) -> (Result_1);
+  delete_player : (nat64) -> (Result_2);
+  delete_team : (nat64) -> (Result_3);
+  get_all_leagues : () -> (Result_4) query;
+  get_all_players : () -> (Result_5) query;
+  get_all_players_in_league : (nat64) -> (Result_5) query;
+  get_all_players_in_league_sorted_by_points : (nat64) -> (Result_5) query;
+  get_all_players_in_league_sorted_by_position : (nat64) -> (Result_5) query;
+  get_all_players_in_league_sorted_by_price : (nat64) -> (Result_5) query;
+  get_all_players_in_league_sorted_by_team : (nat64) -> (Result_5) query;
+  get_all_players_in_team : (nat64) -> (Result_5) query;
+  get_all_teams : () -> (Result_6) query;
+  get_all_teams_in_league : (nat64) -> (Result_6) query;
+  get_all_teams_in_league_sorted_by_points : (nat64) -> (Result_6) query;
+  get_highest_scoring_player : () -> (opt Player) query;
+  get_league : (nat64) -> (Result_1) query;
+  get_player : (nat64) -> (Result_2) query;
+  get_team : (nat64) -> (Result_3) query;
+  insert_league : (LeaguePayload) -> (Result_7);
+  insert_player : (PlayerPayload) -> (Result_8);
+  insert_team : (TeamPayload) -> (Result_9);
+  update_league : (nat64, LeaguePayload) -> (Result_1);
+  update_player : (nat64, PlayerPayload) -> (Result_2);
+  update_team : (nat64, TeamPayload) -> (Result_3);
+}
