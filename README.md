@@ -172,6 +172,11 @@ dfx start --background --clean
 npm run gen-deploy
 
 ```
+If building of frontend throws error `dotenv not found ` 
+```bash
+#  run  
+npm install
+```
 
 Once the job completes, your application will be available at `http://localhost:4943?canisterId={asset_canister_id}`.
 
