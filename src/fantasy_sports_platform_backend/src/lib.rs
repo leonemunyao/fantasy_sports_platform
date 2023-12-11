@@ -225,6 +225,10 @@ fn update_if_positive(field: &mut u32, new_value: u32) {
 
 #[ic_cdk::update]
 fn update_player(id: u64, player_payload: PlayerPayload) -> Result<Player, Error> {
+    if player_payload.age > 0 && player_payload.age < 15 || player_payload.age > 50
+    {
+        return Err(Error::InvalidInputData{msg: format!("Age={} must be between 15 and 50 years old", player_payload.age)});
+    }
     let player = PLAYER_MAP.with(|service| service.borrow().get(&id));
     if let Some(mut player) = player {
         update_if_not_empty(&mut player.name, player_payload.name);
@@ -356,12 +360,14 @@ fn add_player_to_team(team_id: u64, player_id: u64) -> Result<(), String> {
     }
     let team = TEAM_MAP.with(|service| service.borrow().get(&team_id));
     if let Some(mut team) = team {
-        if team.players.iter().any(|player| player.id == player_id) {
-            return Err("Player already exists in team".to_string());
-        }
         let player = PLAYER_MAP.with(|service| service.borrow().get(&player_id));
-        if let Some(player) = player {
+        if let Some(mut player) = player {
+            if team.players.iter().any(|player| player.id == player_id) {
+                return Err("Player already exists in team".to_string());
+            }
             team.players.push(player.clone());
+            player.team = team.name.clone();
+            do_insert_player(&player);
             do_insert_team(&team);
             Ok(())
         } else {
@@ -416,7 +422,6 @@ fn get_league(id: u64) -> Result<League, Error> {
 }
 
 #[ic_cdk::update]
-
 fn insert_league(league_payload: LeaguePayload) -> Result<League, String> {
     if league_payload.name.trim().is_empty(){
         return Err("Invalid league data".to_string());
@@ -494,7 +499,6 @@ fn add_team_to_league(league_id: u64, team_id: u64) -> Result<(), String> {
 
 
 #[ic_cdk::update]
-
 fn delete_league(id: u64) -> Result<League, Error> {
     let league = LEAGUE_MAP.with(|service| service.borrow_mut().remove(&id));
     if let Some(league) = league {
@@ -507,7 +511,6 @@ fn delete_league(id: u64) -> Result<League, Error> {
 }
 
 #[ic_cdk::query]
-
 fn get_all_players_in_team(id: u64) -> Result<Vec<Player>, Error> {
     let team = TEAM_MAP.with(|service| service.borrow().get(&id));
     if let Some(team) = team {
@@ -520,7 +523,6 @@ fn get_all_players_in_team(id: u64) -> Result<Vec<Player>, Error> {
 }
 
 #[ic_cdk::query]
-
 fn get_all_teams_in_league(id: u64) -> Result<Vec<TeamLineup>, Error> {
     let league = LEAGUE_MAP.with(|service| service.borrow().get(&id));
     if let Some(league) = league {
@@ -533,7 +535,6 @@ fn get_all_teams_in_league(id: u64) -> Result<Vec<TeamLineup>, Error> {
 }
 
 #[ic_cdk::query]
-
 fn get_all_players_in_league(id: u64) -> Result<Vec<Player>, Error> {
     let league = LEAGUE_MAP.with(|service| service.borrow().get(&id));
     if let Some(league) = league {
@@ -552,7 +553,6 @@ fn get_all_players_in_league(id: u64) -> Result<Vec<Player>, Error> {
 }
 
 #[ic_cdk::query]
-
 fn get_all_players_in_league_sorted_by_points(id: u64) -> Result<Vec<Player>, Error> {
     let league = LEAGUE_MAP.with(|service| service.borrow().get(&id));
     if let Some(league) = league {
@@ -572,7 +572,6 @@ fn get_all_players_in_league_sorted_by_points(id: u64) -> Result<Vec<Player>, Er
 }
 
 #[ic_cdk::query]
-
 fn get_all_players_in_league_sorted_by_price(id: u64) -> Result<Vec<Player>, Error> {
     let league = LEAGUE_MAP.with(|service| service.borrow().get(&id));
     if let Some(league) = league {
@@ -593,8 +592,6 @@ fn get_all_players_in_league_sorted_by_price(id: u64) -> Result<Vec<Player>, Err
 
 
 #[ic_cdk::query]
-
-
 fn get_all_players_in_league_sorted_by_team(id: u64) -> Result<Vec<Player>, Error> {
     let league = LEAGUE_MAP.with(|service| service.borrow().get(&id));
     if let Some(league) = league {
@@ -614,7 +611,6 @@ fn get_all_players_in_league_sorted_by_team(id: u64) -> Result<Vec<Player>, Erro
 }
 
 #[ic_cdk::query]
-
 fn get_all_players_in_league_sorted_by_position(id: u64) -> Result<Vec<Player>, Error> {
     let league = LEAGUE_MAP.with(|service| service.borrow().get(&id));
     if let Some(league) = league {
@@ -634,7 +630,6 @@ fn get_all_players_in_league_sorted_by_position(id: u64) -> Result<Vec<Player>, 
 }
 
 #[ic_cdk::query]
-
 fn get_all_teams_in_league_sorted_by_points(id: u64) -> Result<Vec<TeamLineup>, Error> {
     let league = LEAGUE_MAP.with(|service| service.borrow().get(&id));
     if let Some(league) = league {
@@ -664,6 +659,7 @@ fn get_highest_scoring_player() -> Option<Player> {
 #[derive(candid::CandidType, Deserialize, Serialize)]
 enum  Error {
     NotFound { msg: String },
+    InvalidInputData {msg: String}
 }
 
 // Export the candid interface
