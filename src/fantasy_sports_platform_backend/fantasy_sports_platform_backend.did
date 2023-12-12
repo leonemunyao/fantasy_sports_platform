@@ -1,4 +1,7 @@
-type Error = variant { NotFound : record { msg : text } };
+type Error = variant {
+  InvalidInputData : record { msg : text };
+  NotFound : record { msg : text };
+};
 type League = record { id : nat64; teams : vec TeamLineup; name : text };
 type LeaguePayload = record { name : text };
 type Player = record {
